@@ -1,6 +1,6 @@
 ---
 title: "ECON 291 Project"
-author: "[First name] [Last name]"
+author: "Oleksandr Valchyshen"
 date: "9/2/2022"
 output: html_document
 ---
@@ -31,43 +31,13 @@ census_api_key(key.Census)
 
 ```
 
-## The U.S. Dollar Exchange Rate vs. the Euro
-
-Let's take a look at, for example, the exchange rate history of the US dollar against the euro. FRED collects this data series on a daily basis under ID ```DEXUSEU```. 
-
-The FRED data set has two columns that interest us most: ```date``` and ```value```. 
-
-``` {r echo=FALSE}
-# Grab the data on the exchange rate of US dollar to the euro
-# Note: the unique ID for this data in the FRED system is DEXUSEU
-t <- 
-  fredr(
-    series_id         = "DEXUSEU",
-    observation_start = as.Date("2012-01-01"),
-    observation_end   = Sys.Date()
-  )
-
-# Let's remove records from t, which does not contain data
-t <- na.omit(t)
-
-# Display first 6 records of the data set t
-tail(t[,1:3], 6)
-
-```
-
-Now, let's plot the data. See below. 
-
-```{r echo=FALSE}
-
-ggplot(t, aes(x=date, y=value)) + geom_line(col="red")
-
-```
+# The U.S. Economy
 
 ## Non-Farm Payroll
 
 Let's 
 
-  (1) grab the **non-farm payroll** employment data from BLS (ID: ```CES0000000001```), 
+  (1) retreive the **non-farm payroll** employment data from BLS since 2016 through current year (ID: ```CES0000000001```), 
   (2) then derive the NFP change in the most recent period and 
   (3) graph the whole data set.
 
@@ -91,7 +61,8 @@ format(nfp$date[nrow(nfp)],"%B %Y")
 diff(nfp$value,1,1)[nrow(nfp)-1]            # The value of the most recent NFP observation
 
 # Plotting the NFP data
-ggplot(nfp, aes(x=date,y=value)) + geom_line(col="red")
+ggplot(nfp, aes(x=date,y=value)) + geom_line(col="red") + 
+  labs(x="", y="", title="Non-farm payroll employment (thousands)")
 
 ```
 
@@ -130,7 +101,10 @@ cpi       <- cpi[order(cpi$date),]
 cpi <- bls.cpi.item_name(cpi, p$seriesid)
 
 # Plotting the CPI data as indexes
-ggplot(cpi,     aes(x=date,y=value,color=item_name)) + geom_line()
+ggplot(cpi,     aes(x=date,y=value,color=item_name)) + geom_line() + 
+  labs(x="", y="", 
+       title="CPI-All Items and its two selected components",
+       subtitle="Monthly index data")
 
 ```
 
@@ -145,6 +119,9 @@ for (i in 1:length(p$seriesid)) {
 }
 
 # Plotting the CPI data as year-on-year changes
-ggplot(cpi.yoy, aes(x=date,y=value,color=item_name)) + geom_line()
+ggplot(cpi.yoy, aes(x=date,y=value,color=item_name)) + geom_line() + 
+  labs(x="", y="", 
+       title="CPI-All Items and its two selected components",
+       subtitle="Year-on-year percentage change in monthly index data")
 
 ```
