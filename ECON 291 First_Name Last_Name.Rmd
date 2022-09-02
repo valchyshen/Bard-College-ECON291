@@ -1,6 +1,6 @@
 ---
 title: "ECON 291 Project"
-author: "Oleksandr Valchyshen"
+author: "[First name] [Last name]"
 date: "9/2/2022"
 output: html_document
 ---
