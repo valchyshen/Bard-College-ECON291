@@ -1,6 +1,6 @@
 ---
 title: "ECON 291 Project"
-author: "[First name] [Last name]"
+author: "Oleksandr Valchyshen"
 date: "9/2/2022"
 output: html_document
 ---
@@ -18,6 +18,7 @@ library(fredr)         # Fed Reserve Bank of St. Louis, FRED
 library(bea.R)         # The U.S. Bureau of Economic Analysis
 library(tidycensus)    # The U.S. Census Bureau 
 library(blsAPI)        # The U.S. Bureau of Labor Statistics
+library(ggplot2)       # Library for plots
 
 # My access keys, which will be used in this project
 key.FRED   = "3f1722e0293651c883a63c15725200f8"
@@ -31,7 +32,32 @@ census_api_key(key.Census)
 
 ```
 
-# The U.S. Economy
+## Hello! This is 1st step
+
+Let's take a look at, for example, the exchange rate history of the US dollar against the euro. FRED collects this data series on a daily basis under ID ```DEXUSEU```. 
+
+The FRED data set has two columns that interest us most: ```date``` and ```value```. 
+
+``` {r echo=FALSE}
+# Grab the data on the exchange rate of US dollar to the euro
+# Note: the unique ID for this data in the FRED system is DEXUSEU
+t <- 
+  fredr(
+    series_id         = "DEXUSEU",
+    observation_start = as.Date("2012-01-01"),
+    observation_end   = Sys.Date()
+  )
+# Let's remove records from t, which does not contain data
+t <- na.omit(t)
+# Display first 6 records of the data set t
+tail(t[,1:3])
+```
+
+Now, let's plot the data. See below. 
+
+```{r echo=FALSE}
+ggplot(t, aes(x=date, y=value)) + geom_line(col="red")
+```
 
 ## Non-Farm Payroll
 
