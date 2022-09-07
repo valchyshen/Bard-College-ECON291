@@ -102,7 +102,7 @@ Let's grab the most recent inflation data from BLS and graph it. I am interested
 
 ``` {r echo=FALSE}
 
-# Item codes for CPI details: https://download.bls.gov/pub/time.series/cu/cu.item
+# Item codes for CPI basket's goods and services: https://download.bls.gov/pub/time.series/cu/cu.item
 # Rule for ID construction: CUUR0000 + Item code
 # Example 1: item code for "All Items" is SA0
 #            hence, ID for CPI in "All items" is CUUR0000SA0
@@ -117,6 +117,10 @@ p <- list(                                  # Creating list of data to be retrie
   "endyear"         = year(Sys.Date()),     # ...current year is the end year of the time range 
   "registrationKey" = key.BLS               # BLS key
   )              
+
+# Note: 0000 in the above mentioned ID stands for an area code, which is the U.S. city average
+# Area codes: https://download.bls.gov/pub/time.series/cu/cu.area 
+# All info: https://download.bls.gov/pub/time.series/cu/
 
 cpi       <- blsAPI(p,2,TRUE)               # Obtaining the CPI data
 cpi$value <- as.numeric(cpi$value)
