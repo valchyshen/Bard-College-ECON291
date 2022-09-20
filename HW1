@@ -1,0 +1,39 @@
+## Profits
+Total profits in the US economy $\hat{\pi}=I+GD+CAB$ (net profits = investments + government deficit + current account balance).
+
+```{r, echo=FALSE}
+
+# Investments (I) --------------------------------------------------------------+
+beaSpecs <- list(
+  'UserID' = key.BEA, 'Method' = 'GetData', 'datasetname' = 'NIPA',
+  'TableName' = 'T50100', 'Frequency' = 'Q', 'Year' = 'X', 'ResultFormat' = 'json'
+)
+beaPayload <- beaGet(beaSpecs, asWide = FALSE)
+inv        <- beaPayload[ which(beaPayload$LineNumber == "22") ] # ...enter Line number here
+inv.ts     <- ts(inv$DataValue, start = c(1947,1), frequency = 4)
+print("I, billions US$"); last(inv.ts)/1000
+
+# Govt Deficit (GD) ------------------------------------------------------------+
+beaSpecs <- list(
+  'UserID' = key.BEA, 'Method' = 'GetData', 'datasetname' = 'NIPA',
+  'TableName' = 'T30100', 'Frequency' = 'Q', 'Year' = 'X', 'ResultFormat' = 'json'
+)
+beaPayload <- beaGet(beaSpecs, asWide = FALSE)
+gd         <- beaPayload[ which(beaPayload$LineNumber == "31") ] # ...enter Line number here 
+gd.ts      <- ts(gd$DataValue, start = c(1947,1), frequency = 4)
+print("GD, billions US$"); last(gd.ts)/1000*-1
+
+# Current Account Balance (CAB) ------------------------------------------------+
+beaSpecs <- list(
+  'UserID' = key.BEA, 'Method' = 'GetData', 'datasetname' = 'NIPA',
+  'TableName' = 'T40100', 'Frequency' = 'Q', 'Year' = 'X', 'ResultFormat' = 'json'
+)
+beaPayload <- beaGet(beaSpecs, asWide = FALSE)
+cab        <- beaPayload[ which(beaPayload$LineNumber == "33") ] # ...enter Line number here
+cab.ts     <- ts(cab$DataValue, start = c(1947,1), frequency = 4)
+print("CAB, billions US$"); last(cab.ts)/1000
+
+last(quarters(as.Date(time(inv.ts)))) # Most recent period's quarter
+last(year(as.Date(time(inv.ts))))     # Most recent period's year
+
+```
