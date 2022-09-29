@@ -1397,8 +1397,14 @@ use.library("xml2")
 use.library("dplyr")
 use.library("openxlsx")
 use.library("siebanxicor")
+use.library("rjson")
 
-install_github("mikeasilva/blsAPI")  # Installing R library for BLS
+#devtools::install_github("mikeasilva/blsAPI")  # Installing R library for BLS
+#https://cran.r-project.org/src/contrib/Archive/blsAPI/blsAPI_0.2.1.tar.gz
+install.packages("https://cran.r-project.org/src/contrib/Archive/blsAPI/blsAPI_0.2.1.tar.gz",
+                 repos = NULL, type = "source")
+
+# install_github("mikeasilva/blsAPI")  # Installing R library for BLS
 
 # Installing R library for Turkish central bank data (CBRT)
 #install.packages("http://users.metu.edu.tr/etaymaz/files/CBRT_0.1.0.tar.gz",
