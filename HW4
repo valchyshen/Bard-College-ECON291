@@ -1,0 +1,256 @@
+## Homework 3
+
+Example: **Russia**.
+
+### Exercise 1
+
+#### (a) The country's money of account and codes
+
+Russia's money of account is ```Russian ruble```, which has a three-letter id of ```RUB```. Russia's country code is ```RU```.
+
+The best way to find your's country codes is by visiting this page [```https://stats.bis.org/statx/srs/table/i3?m=A```](https://stats.bis.org/statx/srs/table/i3?m=A). Then, in the provided table find a row with your country's name and click on the provided value of the exchange rate -- in new page, these codes are provided.
+ 
+```{r echo=FALSE} 
+
+c.id    <- "RU"       # Country ID
+m.id    <- "RUB"      # Money of account ID
+
+```
+
+#### (b) Chart of the FX market rate & commentary
+
+The following graph is automatically created by RStudio once your provided corrected code of your country and its money of account. In case of Russia these codes are **```RU```** and **```RUB```**, which are respectively the country code and the money of account code.
+
+**Commentary:** Russian ruble (RUB) has experienced a number of periods of extreme volatility over past 30 years as depicted on the chart below. Most of the time those volatility episodes were about deep devaluations of the ruble against the US dollar. In the 1990s, there was sizable drop in value in between 1991-94. Then, it was a period of relative stability lasting a couple of years, which ended with an August 1998 devaluation the wake of Russia's government default in government bonds denominated in own money of account. Over 2000s, there was a relative stability that ended with Global Financial Crisis of 2008. Since then, exchange rate regime was moving towards greater floating of RUB vs USD in the FX market. Russia's war invasions in Ukraine in 2014 and 2022 had impacted the FX market as shown below.
+
+```{r echo=FALSE}
+
+# Retrieving the daily FX market rate from the BIS website
+url <- paste0("https://stats.bis.org/api/v1/data/WS_XRU_D/D.",c.id,"../all?detail=full")
+page <- xml2::read_xml(url); observations <- xml_find_all(page, ".//Obs")
+# Extract the attribute vales from each node
+date   <- observations %>% xml_attr("TIME_PERIOD")  %>% as.Date("%Y-%m-%d")
+value  <- observations %>% xml_attr("OBS_VALUE") %>% as.numeric()
+status <- observations %>% xml_attr("OBS_STATUS")
+conf   <- observations %>% xml_attr("OBS_CONF")
+fx.r   <- data.frame(date, value, status, conf); 
+fx.r   <- na.omit(fx.r); fx.r$year <- year(fx.r$date); fx.r$month <- month(fx.r$date) 
+plot(x=fx.r$date, y=fx.r$value, xlab="", ylab="", type="l",
+     main=paste0(m.id,": Daily History of FX Rate \n From ",
+                 format(min(fx.r$date),"%b %d, %Y")," Through ",format(max(fx.r$date),"%b %d, %Y")))
+fx.r.m  <- fx.r %>% group_by(year,month) %>% summarise(value=mean(value))
+fx.r.ts <- ts(fx.r.m$value, start=c(fx.r$year[1],fx.r$month[1]), frequency = 12) 
+```
+
+### Exercise 2
+
+Russia's macro variables to found via the provided linked:
+
+(a) current account balance ($CAB$) and total imports ($IMP$), including goods and services: \color{blue}[```imf.org/regular.aspx?key=62805740```](https://data.imf.org/regular.aspx?key=62805740)\color{black}, which reported in the US dollars 
+(b) international foreign-exchange reserves ($FXR$) \color{blue}[```imf.org/regular.aspx?key=61545856```](https://data.imf.org/regular.aspx?key=61545856 )\color{black}, which reported in the US dollars
+(c) gross domestic product ($GDP$) \color{blue}[```imf.org/regular.aspx?key=61545852```](https://data.imf.org/regular.aspx?key=61545852)\color{black}, which reported in national money of account. To turn this data being denominated in the US dollars, use this IMF's page on the country's average FX rate ($AXR$) versus the US dollar \color{blue}[```imf.org/regular.aspx?key=61545850```](https://data.imf.org/regular.aspx?key=61545850)\color{black}.
+
+I am going to open these links one after another and copy the _annual_ macro variables for 2019, 2020 and 2021:
+
+```{r echo=TRUE}
+
+# (a) Current account balance (CAB) and Imports of goods and services in 2019,2020,2021
+cab <- c(65627.25, 35372.69, 122270.25)
+imp <- c(253876.74+98481.54, 240088.6+64748.16, 304012.57+75934.07)
+# (b) international foreign-exchange reserves (FXR) as of year-end of 2019,2020,2021
+fxr <- c(443970.001638925, 457017.572769564, 497554.424796464)
+# (c) gross domestic product (GDP) and average FX rate vs USD (AXR) in 2019,2020,2021 
+gdp <- c(109241536.4, 106967459.4, 30967986.6+26770985.2+30853087.1+33911192.5)
+axr <- c(72.083247177304, 77.7379491783367, 76.8135364354897)
+
+# Ratio of current account balance to GDP (%)
+# = CAB / ( GDP / AXR )
+cab/(gdp/axr)*100 # for years of 2019, 2020, 2021
+```
+
+```{r echo=TRUE}
+
+# Ratio of months of country's imports coverage by international FX reserves (months)
+# = IFR / ( IMP / 12 ) 
+fxr/(imp/12) # for years of 2019, 2020, 2021
+
+```
+
+The rule of a thumb for the CAB/GDP ratio is: (a) if _positive_ and above 3-4% of GDP in absolute value then country's money of account looks _undervalued_ in the FX market, (b) if _negative_ and and above 3-4% of GDP in absolute value, then country's money of account looks _overvalued_ in the FX market.
+
+For the ratio of months of imports coverage by official FX reserves, the following rule of a thumb is: (a) if this ratio's value is more than 4-5 months then it supports the idea that country's money of account is _undervalued_ in the FX market, (b) if it is below 3 month threshold the opposite idea is valid that country's money of account is rather _overvalued_.
+
+The above calculations of two macro variables--ratio of CAB as % share of GDP and months of imports covered by official FX reserves--are positive for RUB's future value. In case of Russia, these ratios suggest that RUB appears as **undervalued**.  
+
+### Exercise 3
+
+#### (a) The Basket for EER
+
+On the BIS website, open the page on the exchange rate statistics [```https://www.bis.org/statistics/eer.htm```](https://www.bis.org/statistics/eer.htm). Find the link to the file called 'Trade weights'. Open the _broad trade weights_ spreadsheet file, not the narrow one. Here is direct link to the broad trade weights file: [```https://www.bis.org/statistics/eer/weightsb.xlsx```](https://www.bis.org/statistics/eer/weightsb.xlsx). Use this data from the spreadsheet file to comment on your country's trade basket: (a) its most recent composition, and (b) evolution from the 1993 period. (Note: another source of effective exchange rates is IMF, [```https://data.imf.org/regular.aspx?key=61545850```](https://data.imf.org/regular.aspx?key=61545850), which lacks however an outright description of the basket composition.)
+
+In the case of **Russia**: 
+
+- The most recent basket of countries, which is for the period of 2014-16, consisted of China and Eurozone that accounted for 21.6% and 36.5% of total respectively. Then, these were followed by US, Japan and South Korea that accounted for 7.1%, 4.6% and 3.6% of total respectively. Together the group of countries known as BRICS (Brazil, Russia, India, China and South Africa) accounted for 24.6% of total basket, where China clearly dominates over the rest of countries: India has just 2.1% while Brazil and South Africa each accounted well below 1% of the external trade basket.
+
+- In the 1993-95 period, its basket consisted of China and Eurozone that accounted for 6.7% and 43.43% of total respectively. The US accounted for 10.4% and followed by Japan with 8.3% of total. South Korea's share was 2.8% back then. BRICS accounted for 9.1% share of total of the trade basket for Russia.
+
+- In the past several years since 2016, Russia's foreign trade has been shifting towards even more trade with China and rest of BRICS. This is especially true after Russia's second invasion of Ukraine in 2022.
+
+#### (b) Nominal EER
+
+On the Fred's website [```https://fred.stlouisfed.org/```](https://fred.stlouisfed.org/) one can find and then retrieve:
+
+  - _nominal_ effective exchange rate (REER) for Russia: the data id is ```NBRUBIS```
+  - _real_ effective exchange rate (REER) for Russia: the data id is ```RBRUBIS```.
+  
+Note: the effective exchange rates' monthly data is provided by Bank for International Settlements (BIS) [```www.bis.org```](https://www.bis.org/).
+
+```{r echo=FALSE} 
+
+neer.id <- "NBRUBIS"  # ID for NEER 
+reer.id <- "RBRUBIS"  # ID for REER
+
+```
+
+
+```{r echo=FALSE}
+
+t <-  # Nominal effective exchange rate (NEER)
+  fredr(
+    series_id         = neer.id,
+    observation_start = as.Date("1990-01-01"),
+    observation_end   = Sys.Date()
+  )
+
+neer.ts <- ts(t$value, start = c(year(t$date[1]),month(t$date[1])), frequency = 12)
+plot(neer.ts, xlab="", ylab="Down = Devaluation | Up = Appreciation", 
+     main=paste0("Nominal exchange rate of ", m.id,
+                 " from ", format(min(t$date),"%b %Y"),
+                 " through ", format(max(t$date),"%b %Y")), type="l")
+
+```
+```{r echo=FALSE}
+plot(window(neer.ts, start=c(1999,1)), xlab="", ylab="Down = Devaluation | Up = Appreciation", 
+     main=paste0("Nominal exchange rate of ", m.id," from Jan 2005 through ", format(max(t$date),"%b %Y")), type="l")
+
+```
+
+Russian ruble experienced sizable volatility over past three decades. RUB deeply devalued in the 1st half of 1990s, when its value in terms of nominal effective exchange rate (NEER) plummeted by 68%, and then (after about a 3-year relative stability of the FX rate) it again nosedived by 73% in late 1990s during the Russian financial crisis of August 1998. (See below how these numbers were calculated.) In the 2000s, GFC (global financial crisis) and the 2014 first invasion of Ukraine were the key events on the background as RUB devalued noticeably. In 2022, a set of external and internal measures resulted in extreme volatility of RUB FX rate on both sides: a devaluation was followed by appreciation.  
+
+Calculations:
+
+- Devaluation between Jan-94 and Feb-95: `r (as.numeric(window(neer.ts,start=c(1995,2),end=c(1995,2))) - as.numeric(window(neer.ts,start=c(1994,1),end=c(1994,1)))) / as.numeric(window(neer.ts,start=c(1994,1),end=c(1994,1))) * 100`%
+
+- Devaluation between May-98 and Feb-99: `r (as.numeric(window(neer.ts,start=c(1999,2),end=c(1999,2))) - as.numeric(window(neer.ts,start=c(1998,5),end=c(1998,5)))) / as.numeric(window(neer.ts,start=c(1998,5),end=c(1998,5))) * 100`%
+
+- Devaluation between Aug-08 and Jan-09: `r (as.numeric(window(neer.ts,start=c(2009,1),end=c(2009,1))) - as.numeric(window(neer.ts,start=c(2008,8),end=c(2008,8)))) / as.numeric(window(neer.ts,start=c(2008,8),end=c(2008,8))) * 100`%
+
+- Devaluation between Jan-14 and Jan-16: `r (as.numeric(window(neer.ts,start=c(2016,1),end=c(2016,1))) - as.numeric(window(neer.ts,start=c(2014,1),end=c(2014,1)))) / as.numeric(window(neer.ts,start=c(2014,1),end=c(2014,1))) * 100`%
+
+- Appreciation between Feb-22 and Aug-22: `r (as.numeric(window(neer.ts,start=c(2022,8),end=c(2022,8))) - as.numeric(window(neer.ts,start=c(2022,2),end=c(2022,2)))) / as.numeric(window(neer.ts,start=c(2022,2),end=c(2022,2))) * 100`%
+
+#### Real EER
+
+```{r echo=FALSE}
+
+t <-  # Real effective exchange rate (REER)
+  fredr(
+    series_id         = reer.id,
+    observation_start = as.Date("1990-01-01"),
+    observation_end   = Sys.Date()
+  )
+
+reer.ts <- ts(t$value, start = c(year(t$date[1]),month(t$date[1])), frequency = 12)
+plot(reer.ts, xlab="", ylab="Down = Devaluation | Up = Appreciation", 
+     main=paste0("Real exchange rate of ", m.id,
+                 " from ", format(min(t$date),"%b %Y"),
+                 " through ", format(max(t$date),"%b %Y")), type="l")
+
+```
+
+Real effective exhange rate (REER) is a product of NEER and adjustment for inflation differentiation between the country under consideration and the countries of its main trade partners (see above discussion on basket composition). In the case of Russia, the chart above depicts the volatility of REER over past 30 years. 
+
+Episodes of the devaluations in the market exchange rate of RUB vs USD then followed by (a) consumer inflation increases and (b) some period of relative stability of the market exchange rate (both in terms of RUB/USD rate and in NEER terms). These two factors resulted in the increases of REER -- these episodes are seen in 1996-97, then over 2000-08 and in 2009-13. As a side note: it is interesting that top government officials in Russia started to talk of competitiveness loss (its another names are "REER appreciation", "real FX rate appreciation", "Dutch disease") in early 2013.
+
+In the literature (see ECON291 slides posted for Week 11), real appreciation is characterized by sizable and lengthy _positive_ misalignment of REER, while negative misalignment is an opposite: sizable and lengthy _negative_ misalignment of REER. Misallignment is measured as difference between REER and some metric of REER average such as 5-year moving average, 10-year moving average or all-time average.
+
+In order to evaluate misalignment of RUB in terms of its REER let us calculate these metrics of averages:
+
+```{r echo=FALSE}
+
+# REER averages
+reer.5yMA  <- rollmean(reer.ts, 12*5,  align = "right", fill = NA) #  5-year moving average
+reer.10yMA <- rollmean(reer.ts, 12*10, align = "right", fill = NA) # 10-year moving average
+reer.ATA   <- mean(reer.ts)                                        # All-time average
+
+l <- paste0("REER vs Averages, through ", format(max(as.Date(time(reer.ts))),"%B %Y"))
+plot(reer.ts, xlab="", ylab="Down = Depriciation  |  up = Appreciation", type="l", main=l)
+lines(reer.5yMA,  col="red") 
+lines(reer.10yMA, col="blue")
+abline(h=reer.ATA, col= "gray")
+legend(x = "topleft", 
+       legend = c("REER", "5-year Moving Average", "10-year Moving Average", "All-time Average"), 
+       col = c("black", "red", "blue", "gray"), lty = c(1, 1))
+
+```
+
+
+```{r echo=FALSE}
+
+mis.5yMA  <- reer.ts - reer.5yMA
+mis.10yMA <- reer.ts - reer.10yMA
+mis.ATA   <- reer.ts - reer.ATA
+
+par(mfrow = c(1, 3))
+
+l <- paste0("REER vs 5yr Average \n through ", format(max(as.Date(time(neer.ts))),"%B %Y"))
+plot(x=as.Date(time(mis.5yMA)), y=mis.5yMA, 
+     xlab="", ylab="(-) Negative Misalignment    |    (+) Positive Misalignment", type="l", main=l)
+abline(h=0, col= "gray")
+text(x = as.Date("2008-01-01"), y = max(na.omit(mis.5yMA)), toupper("Overvalued"), col = "red", cex = 1)
+text(x = as.Date("2008-01-01"), y = min(na.omit(mis.5yMA)), toupper("Undervalued"), col = rgb(0,.6,0,1), cex = 1)
+
+l <- paste0("REER vs 10yr Average \n through ", format(max(as.Date(time(reer.ts))),"%B %Y"))
+plot(x=as.Date(time(mis.10yMA)), y=mis.10yMA, 
+     xlab="", ylab="", type="l", main=l)
+abline(h=0, col= "gray")
+text(x = as.Date("2008-01-01"), y = max(na.omit(mis.10yMA)), toupper("Overvalued"), col = "red", cex = 1)
+text(x = as.Date("2008-01-01"), y = min(na.omit(mis.10yMA)), toupper("Undervalued"), col = rgb(0,.6,0,1), cex = 1)
+
+l <- paste0("REER vs All-Time Average \n through ", format(max(as.Date(time(reer.ts))),"%B %Y"))
+plot(x=as.Date(time(mis.ATA)), y=mis.ATA, 
+     xlab="", ylab="", type="l", main=l)
+abline(h=0, col= "gray")
+text(x = as.Date("2008-01-01"), y = max(mis.ATA), toupper("Overvalued"), col = "red", cex = 1)
+text(x = as.Date("2008-01-01"), y = min(mis.ATA), toupper("Undervalued"), col = rgb(0,.6,0,1), cex = 1)
+
+par(mfrow = c(1, 1))
+
+```
+
+Given the above time seires of misalignment metrics, we can now estimate a range of FX rate towards which market rate might tend to move over some in the future.
+
+```{r echo=TRUE}
+
+# Misalignment measures last 12 months: M_5Y = vs 5 year avg; M_10Y = vs 5 year avg, M_AT = vs all-time avg
+window(cbind(FX_Avg_Rate=fx.r.ts, M_5Y=mis.5yMA, M_10Y=mis.10yMA, M_AT=mis.ATA),
+       start=end(fx.r.ts)-1,end=end(fx.r.ts))
+
+# Most recent observation is: 
+obs <- window(cbind(FX_Avg_Rate=fx.r.ts, M_5Y=mis.5yMA, M_10Y=mis.10yMA, M_AT=mis.ATA),
+       start=end(mis.5yMA),end=end(mis.5yMA)); obs
+
+# Misalignment range
+cbind(M_min=min(as.numeric(obs[,2:4])),M_max=max(as.numeric(obs[,2:4])))
+# 'Fair' range for FX rate
+cbind(FX_min=(min(as.numeric(obs[,2:4]))/100+1)*as.numeric(obs[,1]), 
+      FX_max=(max(as.numeric(obs[,2:4]))/100+1)*as.numeric(obs[,1]))
+
+# Most recent daily FX makret rate is:
+fx.r[fx.r$date==max(fx.r$date),c(1,2)]
+
+```
+
+#### Conclusion from REER-based analysis
+
+With estimated 'fair' range of RUB's market FX rate being at 76.7-80.0 per 1 USD, most recent market rate of 62.1/USD appears below the range and suggests RUB now is **overvalued**, according to the REER misalignment framework.
