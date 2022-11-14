@@ -4,7 +4,7 @@ Example: **Russia**.
 
 ### Exercise 1
 
-#### (a) The country's money of account and codes
+#### (1) The country's money of account and codes
 
 Russia's money of account is ```Russian ruble```, which has a three-letter id of ```RUB```. Russia's country code is ```RU```.
 
@@ -17,7 +17,7 @@ m.id    <- "RUB"      # Money of account ID
 
 ```
 
-#### (b) Chart of the FX market rate & commentary
+#### (2) Chart of the FX market rate & commentary
 
 The following graph is automatically created by RStudio once your provided corrected code of your country and its money of account. In case of Russia these codes are **```RU```** and **```RUB```**, which are respectively the country code and the money of account code.
 
@@ -44,6 +44,8 @@ fx.r.ts <- ts(fx.r.m$value, start=c(fx.r$year[1],fx.r$month[1]), frequency = 12)
 
 ### Exercise 2
 
+#### (3) Macro variables
+
 Russia's macro variables to found via the provided linked:
 
 (a) current account balance ($CAB$) and total imports ($IMP$), including goods and services: \color{blue}[```imf.org/regular.aspx?key=62805740```](https://data.imf.org/regular.aspx?key=62805740)\color{black}, which reported in the US dollars 
@@ -61,7 +63,7 @@ imp <- c(253876.74+98481.54, 240088.6+64748.16, 304012.57+75934.07)
 fxr <- c(443970.001638925, 457017.572769564, 497554.424796464)
 # (c) gross domestic product (GDP) and average FX rate vs USD (AXR) in 2019,2020,2021 
 gdp <- c(109241536.4, 106967459.4, 30967986.6+26770985.2+30853087.1+33911192.5)
-axr <- c(72.083247177304, 77.7379491783367, 76.8135364354897)
+axr <- c(64.7376583, 72.1049083, 73.65435)
 
 # Ratio of current account balance to GDP (%)
 # = CAB / ( GDP / AXR )
@@ -84,7 +86,7 @@ The above calculations of two macro variables--ratio of CAB as % share of GDP an
 
 ### Exercise 3
 
-#### (a) The Basket for EER
+#### (4) The Basket for EER
 
 On the BIS website, open the page on the exchange rate statistics [```https://www.bis.org/statistics/eer.htm```](https://www.bis.org/statistics/eer.htm). Find the link to the file called 'Trade weights'. Open the _broad trade weights_ spreadsheet file, not the narrow one. Here is direct link to the broad trade weights file: [```https://www.bis.org/statistics/eer/weightsb.xlsx```](https://www.bis.org/statistics/eer/weightsb.xlsx). Use this data from the spreadsheet file to comment on your country's trade basket: (a) its most recent composition, and (b) evolution from the 1993 period. (Note: another source of effective exchange rates is IMF, [```https://data.imf.org/regular.aspx?key=61545850```](https://data.imf.org/regular.aspx?key=61545850), which lacks however an outright description of the basket composition.)
 
@@ -96,12 +98,12 @@ In the case of **Russia**:
 
 - In the past several years since 2016, Russia's foreign trade has been shifting towards even more trade with China and rest of BRICS. This is especially true after Russia's second invasion of Ukraine in 2022.
 
-#### (b) Nominal EER
+#### (5) Nominal EER
 
 On the Fred's website [```https://fred.stlouisfed.org/```](https://fred.stlouisfed.org/) one can find and then retrieve:
 
-  - _nominal_ effective exchange rate (REER) for Russia: the data id is ```NBRUBIS```
-  - _real_ effective exchange rate (REER) for Russia: the data id is ```RBRUBIS```.
+  - _nominal_ effective exchange rate (NEER) for Russia: the data id is ```NBRUBIS```
+  - _real_ effective exchange rate (REER) for Russia: the data id is ```RBRUBIS```. 
   
 Note: the effective exchange rates' monthly data is provided by Bank for International Settlements (BIS) [```www.bis.org```](https://www.bis.org/).
 
@@ -111,7 +113,6 @@ neer.id <- "NBRUBIS"  # ID for NEER
 reer.id <- "RBRUBIS"  # ID for REER
 
 ```
-
 
 ```{r echo=FALSE}
 
@@ -124,14 +125,16 @@ t <-  # Nominal effective exchange rate (NEER)
 
 neer.ts <- ts(t$value, start = c(year(t$date[1]),month(t$date[1])), frequency = 12)
 plot(neer.ts, xlab="", ylab="Down = Devaluation | Up = Appreciation", 
-     main=paste0("Nominal exchange rate of ", m.id,
-                 " from ", format(min(t$date),"%b %Y"),
+     main=paste0("Nominal effective exchange rate of ", m.id,
+                 " \n from ", format(min(t$date),"%b %Y"),
                  " through ", format(max(t$date),"%b %Y")), type="l")
 
 ```
+
 ```{r echo=FALSE}
 plot(window(neer.ts, start=c(1999,1)), xlab="", ylab="Down = Devaluation | Up = Appreciation", 
-     main=paste0("Nominal exchange rate of ", m.id," from Jan 2005 through ", format(max(t$date),"%b %Y")), type="l")
+     main=paste0("Nominal effective exchange rate of ", m.id," \n from Jan 2005 through ", 
+                 format(max(t$date),"%b %Y")), type="l")
 
 ```
 
@@ -162,8 +165,8 @@ t <-  # Real effective exchange rate (REER)
 
 reer.ts <- ts(t$value, start = c(year(t$date[1]),month(t$date[1])), frequency = 12)
 plot(reer.ts, xlab="", ylab="Down = Devaluation | Up = Appreciation", 
-     main=paste0("Real exchange rate of ", m.id,
-                 " from ", format(min(t$date),"%b %Y"),
+     main=paste0("Real effective exchange rate of ", m.id,
+                 " \n from ", format(min(t$date),"%b %Y"),
                  " through ", format(max(t$date),"%b %Y")), type="l")
 
 ```
