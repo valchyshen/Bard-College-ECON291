@@ -14,15 +14,13 @@ b3 <- "austria,-agb-2.1%-20sep2117,-eur-at0000a1xml2.xlsx"
 
 ```
 
-### Coinbase Global, 3.375% 1oct2028, USD
+## Coinbase Global, 3.375% 1oct2028, USD
 
 This is a USD-denominated bond issued in 2021 with a coupon rate of 3.375% paid semi-annually. It has maturity date on October 1st 2028, at the same time it has a call option in October 2024. 
 
-**Price** of the bond is depicted by the following chart.
-
 ```{r echo=FALSE}
 
-p <- read.xlsx(paste0("../project/",b1), startRow = 2)
+p <- read.xlsx(b1, startRow = 2)
 
 if (length(colnames(p))==12) {
   colnames(p) <- c("Date","Stock exchange", "Bid", "Ask", "Indicative", 
@@ -38,48 +36,48 @@ if (length(colnames(p))==15) {
 }
 
 p$Date <- as.Date(p$Date, origin = "1900-01-01")
+p$YTM_Indicative <- as.numeric(p$YTM_Indicative)
+p$G_Spread <- as.numeric(p$G_Spread)
 p <- p[order(p$Date),]
-
-# Most recent price
-p[p$Date==max(p$Date),]$Indicative
-
-plot(x=p$Date, y=p$Indicative, type="l", xlab="", ylab="Price (% of principal)");  abline(h=na.omit(p[p$Date==max(p$Date),]$Indicative), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$Indicative), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$Indicative), col="red"); 
 
 ```
 
-**Yield-to-maturity** of the bond is depicted by the following chart.
+**Price** of the bond is depicted by the following chart. Most recent price is `r na.omit(p[p$Date==max(p$Date),]$Indicative)`.
 
-```{r echo=TRUE}
+```{r echo=FALSE}
 
-# Most recent Yield-to-Maturity
-p[p$Date==max(p$Date),]$YTM_Indicative
+plot(x=p$Date, y=p$Indicative, type="l", xlab="", ylab="Price (% of principal)");  abline(h=na.omit(p[p$Date==max(p$Date),]$Indicative), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$Indicative), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$Indicative), col="red"); points(x=max(p$Date), y=na.omit(p[p$Date==max(p$Date),]$Indicative), col="red", pch=15)
 
-plot(x=p$Date, y=p$YTM_Indicative, type="l", xlab="", ylab="Yield-to-Maturity (% of principal)");  abline(h=na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), col="red"); 
+```
+
+**Yield-to-maturity** of the bond is depicted by the following chart. Most recent yield-to-maturity is `r na.omit(p[p$Date==max(p$Date),]$YTM_Indicative)`.
+
+```{r echo=FALSE}
+
+plot(x=p$Date, y=p$YTM_Indicative, type="l", xlab="", ylab="Yield-to-Maturity (% of principal)");  abline(h=na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), col="red"); points(x=max(p$Date), y=na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), col="red", pch=15)
 
 ```
 
 **Spread to the benchmark** of the 2028 Coinbase bond is depicted by the following chart. (Note: (1) black solid horizontal line shows median value; black dashed horizontal lines show one standard deviation above and below the median value; red dashed horizontal line shows most-recent value.)
 
-```{r echo=TRUE}
+```{r echo=FALSE}
 
 # (a) Average spread
-mean(na.omit(p$G_Spread))
+print(paste("Average Spread ....................... ",mean(na.omit(p$G_Spread))))
 # (b) Avg spread + one standard deviation of spread
-mean(na.omit(p$G_Spread)) + sd(na.omit(p$G_Spread))
+print(paste("1 St.Dev Above Average Spread ........ ",mean(na.omit(p$G_Spread)) + sd(na.omit(p$G_Spread))))
 # (c) Avg spread - one standard deviation of spread 
-mean(na.omit(p$G_Spread)) - sd(na.omit(p$G_Spread))
+print(paste("1 St.Dev Below Average Spread ........ ",mean(na.omit(p$G_Spread)) - sd(na.omit(p$G_Spread))))
 # (d) Most recent spread
-p[p$Date==max(p$Date),]$G_Spread
+print(paste("Most Recent Spread ................... ",p[p$Date==max(p$Date),]$G_Spread))
 
-plot(x=p$Date, y=p$G_Spread, type="l", xlab="", ylab="Spread (bp)");  abline(h=mean(na.omit(p$G_Spread))); abline(h=mean(na.omit(p$G_Spread))+sd(na.omit(p$G_Spread)), lty=2); abline(h=mean(na.omit(p$G_Spread))-sd(na.omit(p$G_Spread)), lty=2); abline(h=na.omit(p[p$Date==max(p$Date),]$G_Spread), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$G_Spread), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$G_Spread), col="red")
+plot(x=p$Date, y=p$G_Spread, type="l", xlab="", ylab="Spread (bp)");  abline(h=mean(na.omit(p$G_Spread))); abline(h=mean(na.omit(p$G_Spread))+sd(na.omit(p$G_Spread)), lty=2); abline(h=mean(na.omit(p$G_Spread))-sd(na.omit(p$G_Spread)), lty=2); abline(h=na.omit(p[p$Date==max(p$Date),]$G_Spread), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$G_Spread), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$G_Spread), col="red"); points(x=max(p$Date), y=na.omit(p[p$Date==max(p$Date),]$G_Spread), col="red", pch=15)
 
 ```
 
 **Commentary on spread:** Coinbase's bond risk premium has been repriced aggressively by the market from the previously normal level of just above 200 basis points towards 800 basis points last summer and towards just below 1200 basis points few weeks ago. The latter move from 800bp to 1200bp was likely taking place on the back of the FTX debacle. It appears that ongoing FTX bankruptcy procedure will keep the entire crypto assets industry in semi distress situation. My assumption for the future bond price purposes is going to be that safe level of risk premium sticking to 1200 basis points. 
 
 **Commentary on duration:** My elaboration on the Coinbase bond description and cash flow schedule, which helps to calculate price and duration, can be found here: [`https://docs.google.com/spreadsheets/d/1e6Nwm3158aYeTYCXXUrSeNT8bjNcMFDPHzkPDVmpbSI/edit#gid=390311218`](https://docs.google.com/spreadsheets/d/1e6Nwm3158aYeTYCXXUrSeNT8bjNcMFDPHzkPDVmpbSI/edit#gid=390311218). See screenshot below. This bond has duration of 4.45, which is a measure of price sensitivity to 1% change in the market interest rates (up or down). If duration calculated as time-to-maturity weighted and discounted cash flow, then it is 5.1 years. It is about 15% bigger than level of duration calculated as price sensitivity measure.  
-
-![](HW5-fig1.png)
 
 **Commentary on 1Y forward price:** Today, Nov 22nd 2022, the bond's price is 55.77% of face value. One year from now, which is Nov 22nd 2023, the bond's price is estimated this way:
 
@@ -95,15 +93,13 @@ plot(x=p$Date, y=p$G_Spread, type="l", xlab="", ylab="Spread (bp)");  abline(h=m
 
 (6) If assumptions are such that 5-year US Treasury yield in Nov 2023 is 4% and spread on Coinbase widens to 1500 basis points, then rate of return is expected (check your spreadsheet file for the price one year from now, which is 53.52% in this case) at `r 53.52/55.77-1` or negative 4%. This is a negative scenario.
 
-### NIKE, 2.4% 27mar2025, USD
+## NIKE, 2.4% 27mar2025, USD
 
 This is a USD-denominated bond issued in 2020 with a coupon rate of 2.4% paid semi-annually. It has maturity date on March 27st 2025. 
 
-**Price** of the bond is depicted by the following chart.
-
 ```{r echo=FALSE}
 
-p <- read.xlsx(paste0("../project/",b2), startRow = 2)
+p <- read.xlsx(b2, startRow = 2)
 
 if (length(colnames(p))==12) {
   colnames(p) <- c("Date","Stock exchange", "Bid", "Ask", "Indicative", 
@@ -119,48 +115,48 @@ if (length(colnames(p))==15) {
 }
 
 p$Date <- as.Date(p$Date, origin = "1900-01-01")
+p$YTM_Indicative <- as.numeric(p$YTM_Indicative)
+p$G_Spread <- as.numeric(p$G_Spread)
 p <- p[order(p$Date),]
-
-# Most recent price
-p[p$Date==max(p$Date),]$Indicative
-
-plot(x=p$Date, y=p$Indicative, type="l", xlab="", ylab="Price (% of principal)");  abline(h=na.omit(p[p$Date==max(p$Date),]$Indicative), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$Indicative), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$Indicative), col="red"); 
 
 ```
 
-**Yield-to-maturity** of the bond is depicted by the following chart.
+**Price** of the bond is depicted by the following chart. Most recent price is `r na.omit(p[p$Date==max(p$Date),]$Indicative)`.
 
-```{r echo=TRUE}
+```{r echo=FALSE}
 
-# Most recent Yield-to-Maturity
-p[p$Date==max(p$Date),]$YTM_Indicative
+plot(x=p$Date, y=p$Indicative, type="l", xlab="", ylab="Price (% of principal)");  abline(h=na.omit(p[p$Date==max(p$Date),]$Indicative), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$Indicative), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$Indicative), col="red"); points(x=max(p$Date), y=na.omit(p[p$Date==max(p$Date),]$Indicative), col="red", pch=15)
 
-plot(x=p$Date, y=p$YTM_Indicative, type="l", xlab="", ylab="Yield-to-Maturity (% of principal)");  abline(h=na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), col="red"); 
+```
+
+**Yield-to-maturity** of the bond is depicted by the following chart. Most recent yield-to-maturity is `r na.omit(p[p$Date==max(p$Date),]$YTM_Indicative)`.
+
+```{r echo=FALSE}
+
+plot(x=p$Date, y=p$YTM_Indicative, type="l", xlab="", ylab="Yield-to-Maturity (% of principal)");  abline(h=na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), col="red"); points(x=max(p$Date), y=na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), col="red", pch=15)
 
 ```
 
 **Spread to the benchmark** of the bond is depicted by the following chart. (Note: (1) black solid horizontal line shows median value; black dashed horizontal lines show one standard deviation above and below the median value; red dashed horizontal line shows most-recent value.)
 
-```{r echo=TRUE}
+```{r echo=FALSE}
 
 # (a) Average spread
-mean(na.omit(p$G_Spread))
+print(paste("Average Spread ....................... ",mean(na.omit(p$G_Spread))))
 # (b) Avg spread + one standard deviation of spread
-mean(na.omit(p$G_Spread)) + sd(na.omit(p$G_Spread))
+print(paste("1 St.Dev Above Average Spread ........ ",mean(na.omit(p$G_Spread)) + sd(na.omit(p$G_Spread))))
 # (c) Avg spread - one standard deviation of spread 
-mean(na.omit(p$G_Spread)) - sd(na.omit(p$G_Spread))
+print(paste("1 St.Dev Below Average Spread ........ ",mean(na.omit(p$G_Spread)) - sd(na.omit(p$G_Spread))))
 # (d) Most recent spread
-p[p$Date==max(p$Date),]$G_Spread
+print(paste("Most Recent Spread ................... ",p[p$Date==max(p$Date),]$G_Spread))
 
-plot(x=p$Date, y=p$G_Spread, type="l", xlab="", ylab="Spread (bp)");  abline(h=mean(na.omit(p$G_Spread))); abline(h=mean(na.omit(p$G_Spread))+sd(na.omit(p$G_Spread)), lty=2); abline(h=mean(na.omit(p$G_Spread))-sd(na.omit(p$G_Spread)), lty=2); abline(h=na.omit(p[p$Date==max(p$Date),]$G_Spread), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$G_Spread), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$G_Spread), col="red")
+plot(x=p$Date, y=p$G_Spread, type="l", xlab="", ylab="Spread (bp)");  abline(h=mean(na.omit(p$G_Spread))); abline(h=mean(na.omit(p$G_Spread))+sd(na.omit(p$G_Spread)), lty=2); abline(h=mean(na.omit(p$G_Spread))-sd(na.omit(p$G_Spread)), lty=2); abline(h=na.omit(p[p$Date==max(p$Date),]$G_Spread), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$G_Spread), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$G_Spread), col="red"); points(x=max(p$Date), y=na.omit(p[p$Date==max(p$Date),]$G_Spread), col="red", pch=15)
 
 ```
 
 **Commentary on spread:** Nike's bond risk premium has been repriced aggressively down by the market from the primary market (placement) level of about 150 basis points towards the median 34 basis points. One standard deviation above and below the median value are 15 and 54 basis points, while most recent value of the spread was 6 basis points, which is below the one standard deviation from the median. For future price considerations on this bond I am going to be use conservative judgment regarding the possible spread one year from now: 55 basis points (slightly above the level of standard deviation from median).
 
 **Commentary on duration:** My elaboration on the NIKE bond description and cash flow schedule, which helps to calculate price and duration, can be found here: [`https://docs.google.com/spreadsheets/d/1e6Nwm3158aYeTYCXXUrSeNT8bjNcMFDPHzkPDVmpbSI/edit#gid=305836242`](https://docs.google.com/spreadsheets/d/1e6Nwm3158aYeTYCXXUrSeNT8bjNcMFDPHzkPDVmpbSI/edit#gid=305836242). See screenshot below. This bond has duration of 2.19, which is a measure of price sensitivity to 1% change in the market interest rates (up or down). If duration calculated as time-to-maturity weighted and discounted cash flow, then it is 2.28 years. It is about 4% bigger than level of duration calculated as price sensitivity measure.  
-
-![](HW5-fig2.png)
 
 **Commentary on 1Y forward price:** Today, Nov 22nd 2022, the bond's price is 95.33% of face value. One year from now, which is Nov 22nd 2023, the bond's price is estimated this way:
 
@@ -176,15 +172,13 @@ plot(x=p$Date, y=p$G_Spread, type="l", xlab="", ylab="Spread (bp)");  abline(h=m
 
 (6) If assumptions are such that 1-year US Treasury yield in Nov 2023 is 4% and spread on NIKE bond tightens to the past median of 34 basis points, then rate of return is expected (check your spreadsheet file for the price one year from now, which is 97.56% in this case) at `r 97.56/95.33-1` or positive 2.34%. This is a bit more positive scenario than in (5).
 
-### Austria, AGB 2.1% 20sep2117, EUR
+## Austria, AGB 2.1% 20sep2117, EUR
 
 This is a EUR-denominated bond issued in 2017 as a 100-year bond. It has maturity date on March 27st 2117. The bond's coupon rate is 2.1% and has been paid annually. 
 
-**Price** of the bond is depicted by the following chart.
-
 ```{r echo=FALSE}
 
-p <- read.xlsx(paste0("../project/",b3), startRow = 2)
+p <- read.xlsx(b3, startRow = 2)
 
 if (length(colnames(p))==12) {
   colnames(p) <- c("Date","Stock exchange", "Bid", "Ask", "Indicative", 
@@ -200,54 +194,54 @@ if (length(colnames(p))==15) {
 }
 
 p$Date <- as.Date(p$Date, origin = "1900-01-01")
+p$YTM_Indicative <- as.numeric(p$YTM_Indicative)
+p$G_Spread <- as.numeric(p$G_Spread)
 p <- p[order(p$Date),]
-
-# Most recent price
-p[p$Date==max(p$Date),]$Indicative
-
-plot(x=p$Date, y=p$Indicative, type="l", xlab="", ylab="Price (% of principal)");  abline(h=na.omit(p[p$Date==max(p$Date),]$Indicative), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$Indicative), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$Indicative), col="red"); 
 
 ```
 
-**Yield-to-maturity** of the bond is depicted by the following chart.
+**Price** of the bond is depicted by the following chart. Most recent price is `r na.omit(p[p$Date==max(p$Date),]$Indicative)`.
 
-```{r echo=TRUE}
+```{r echo=FALSE}
 
-# Most recent Yield-to-Maturity
-p[p$Date==max(p$Date),]$YTM_Indicative
+plot(x=p$Date, y=p$Indicative, type="l", xlab="", ylab="Price (% of principal)");  abline(h=na.omit(p[p$Date==max(p$Date),]$Indicative), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$Indicative), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$Indicative), col="red"); points(x=max(p$Date), y=na.omit(p[p$Date==max(p$Date),]$Indicative), col="red", pch=15)
 
-plot(x=p$Date, y=p$YTM_Indicative, type="l", xlab="", ylab="Yield-to-Maturity (% of principal)");  abline(h=na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), col="red"); 
+```
+
+**Yield-to-maturity** of the bond is depicted by the following chart. Most recent yield-to-maturity is `r na.omit(p[p$Date==max(p$Date),]$YTM_Indicative)`.
+
+```{r echo=FALSE}
+
+plot(x=p$Date, y=p$YTM_Indicative, type="l", xlab="", ylab="Yield-to-Maturity (% of principal)");  abline(h=na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), col="red"); points(x=max(p$Date), y=na.omit(p[p$Date==max(p$Date),]$YTM_Indicative), col="red", pch=15)
 
 ```
 
 **Spread to the benchmark** of the bond is depicted by the following chart. (Note: (1) black solid horizontal line shows median value; black dashed horizontal lines show one standard deviation above and below the median value; red dashed horizontal line shows most-recent value.)
 
-```{r echo=TRUE}
+```{r echo=FALSE}
 
 # (a) Average spread
-mean(na.omit(p$G_Spread))
+print(paste("Average Spread ....................... ",mean(na.omit(p$G_Spread))))
 # (b) Avg spread + one standard deviation of spread
-mean(na.omit(p$G_Spread)) + sd(na.omit(p$G_Spread))
+print(paste("1 St.Dev Above Average Spread ........ ",mean(na.omit(p$G_Spread)) + sd(na.omit(p$G_Spread))))
 # (c) Avg spread - one standard deviation of spread 
-mean(na.omit(p$G_Spread)) - sd(na.omit(p$G_Spread))
+print(paste("1 St.Dev Below Average Spread ........ ",mean(na.omit(p$G_Spread)) - sd(na.omit(p$G_Spread))))
 # (d) Most recent spread
-p[p$Date==max(p$Date),]$G_Spread
+print(paste("Most Recent Spread ................... ",p[p$Date==max(p$Date),]$G_Spread))
 
-plot(x=p$Date, y=p$G_Spread, type="l", xlab="", ylab="Spread (bp)");  abline(h=mean(na.omit(p$G_Spread))); abline(h=mean(na.omit(p$G_Spread))+sd(na.omit(p$G_Spread)), lty=2); abline(h=mean(na.omit(p$G_Spread))-sd(na.omit(p$G_Spread)), lty=2); abline(h=na.omit(p[p$Date==max(p$Date),]$G_Spread), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$G_Spread), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$G_Spread), col="red")
+plot(x=p$Date, y=p$G_Spread, type="l", xlab="", ylab="Spread (bp)");  abline(h=mean(na.omit(p$G_Spread))); abline(h=mean(na.omit(p$G_Spread))+sd(na.omit(p$G_Spread)), lty=2); abline(h=mean(na.omit(p$G_Spread))-sd(na.omit(p$G_Spread)), lty=2); abline(h=na.omit(p[p$Date==max(p$Date),]$G_Spread), lty=2, col="red"); text(y=na.omit(p[p$Date==max(p$Date),]$G_Spread), x=p$Date[1]+90, na.omit(p[p$Date==max(p$Date),]$G_Spread), col="red"); points(x=max(p$Date), y=na.omit(p[p$Date==max(p$Date),]$G_Spread), col="red", pch=15)
 
 ```
 
 **Commentary on spread:** Austria's 100-year bond risk premium has been flactuationg largely around the median level of about 80 basis points. Spread over the benchmark was fluctuating closely within the ranges of one standard deviation (above and below) from the median. That range of one standard deviation abobve and below from the median is 68 and 79 basis points. Just occasionally the spread was as low as about 50bp and as high as 110bp. Most recent spread is 71bp. For the purposes of future price estimation I am going to use conservative spread measure of 90bp, which is at the upper boundary of one standard deviation from median. 
 
-**Commentary on duration:** My elaboration on the Austria's 100-year bond description and cash flow schedule, which helps to calculate price and duration, can be found here: [`https://docs.google.com/spreadsheets/d/1e6Nwm3158aYeTYCXXUrSeNT8bjNcMFDPHzkPDVmpbSI/edit#gid=1169674952`](https://docs.google.com/spreadsheets/d/1e6Nwm3158aYeTYCXXUrSeNT8bjNcMFDPHzkPDVmpbSI/edit#gid=1169674952). See screenshot below. This bond has duration of 38.78, which is a measure of price sensitivity to 1% change in the market interest rates (up or down). If duration calculated as time-to-maturity weighted and discounted cash flow, then it is 36.74 years. It is about 5% smaller than level of duration calculated as price sensitivity measure.  
-
-![](HW5-fig3.png)
+**Commentary on duration:** My elaboration on the Austria's 100-year bond description and cash flow schedule, which helps to calculate price and duration, can be found here: [`https://docs.google.com/spreadsheets/d/1e6Nwm3158aYeTYCXXUrSeNT8bjNcMFDPHzkPDVmpbSI/edit#gid=1169674952`](https://docs.google.com/spreadsheets/d/1e6Nwm3158aYeTYCXXUrSeNT8bjNcMFDPHzkPDVmpbSI/edit#gid=1169674952). See screenshot below. This bond has duration of 38.78, which is a measure of price sensitivity to 1% change in the market interest rates (up or down). If duration calculated as time-to-maturity weighted and discounted cash flow, then it is 36.74 years. It is about 5% smaller than level of duration calculated as price sensitivity measure.
 
 **Commentary on 1Y forward price:** Today, Nov 22nd 2022, the bond's price is 81.58% of face value. One year from now, which is Nov 22nd 2023, the bond's price is estimated this way:
 
 (1) Since the bond is EUR-denominated, I am goig to use the yield curve of the Germany's government bond market (these bonds are called Bunds), of the leading economy in the euro-zone. Because this bond matures in 2117, in one year from now its remaining life for the maturity is going to be 94 years. Hence, I am going to use the most longest maturity available by the Germany's yield curve which is 30-year Bund. The latter is yielding 1.71% today (check this [link to German Bund yields](https://www.investing.com/rates-bonds/germany-government-bonds?maturity_from=40&maturity_to=290)).
 
-(2) My 1st assumption of 30-year Gernam Bund yield one year from today is that it's not going to change, i.e. stays at 1.71%.
+(2) My 1st assumption of 30-year German Bund yield one year from today is that it's not going to change, i.e. stays at 1.71%.
 
 (3) My 2nd assumption is that spread or risk premium in one years is 90 basis points (see above).
 
